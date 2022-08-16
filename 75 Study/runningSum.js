@@ -1,4 +1,6 @@
-var runningSum = function(nums) {
+// 1480. Running Sum of 1d Array
+
+var runningSum = function (nums) {
     // new array should be -
     // every element is sum from itself to all previous one(s)
     
