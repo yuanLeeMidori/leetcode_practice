@@ -5,59 +5,37 @@
  * @param {number[][]} trust
  * @return {number}
  */
-var findJudge = function(n, trust) {
+ var findJudge = function(n, trust) {
     
-    // if there is only one person (aka n == 1), she is the judge
-    if (n == 1) return 1;
+    // if being trusted by one person gets one point
+    //    trusting another person deduct one point
+    // town judge should gain n-1 points
+    // the rest of the ppl in town should get less than n-1 points
+    
+    // 0. special case - when there is only one person in the town and the trust array is empty, she is the judge
+    if (n === 1 && trust.length === 0) return 1;
+    
+    // 1. create trust point array for everyone
+    // something like [9,8] => meaning resident 1 has 9 trust points and resident 2 has 8 trust point (index + 1 is the resident number)
+    
+    let trustScore = new Array(n+1).fill(0); // initialize trustScore for everyone in the town with 0 point
         
     
-    // size of trust
-    let size = 0;
-    let limit = false;
-    let i = 0;
-    while (!limit) {
-        
-        if (trust[i] != undefined) {
-            size ++;    
-            i++;
-        } else {
-            limit = true;
-        }        
+    // 2. the index in ai should be deducting one point; the index in bi should be increasing one point
+    // e.g. trust = [[1,2], [3,2]]
+    //      trust[0][0] = 1, and 1 trusts someone, so index 1 in the score array should -1
+    //      trust[0][1] = 2, 2 is being trusted, so index 2 in the score array should +1
+    for (let i = 0; i < trust.length; i++) {
+        trustScore[trust[i][0]]--;
+        trustScore[trust[i][1]]++;
     }
-    
-    // get the hashTable of each second position (bi) (example: [[1,3],[1,4],[2,3],[2,4],[4,3]])
-    let distribution = {};
-    let dSize = 0;
-    
-    // after this, the hash table should be {'3': 0, '4': 0}
-    for (let i = 0; i < size; i++) {
-        distribution[trust[i][1]] = 0;
-    }
-    
-    // after this, the hash table should be {'3': 3, '4': 2}    
-    for (let i = 0; i < size; i++) {
-        distribution[trust[i][1]]++;
-    }
+
+    // 3. if we can find one resident's score that is exactly equal to n-1, return its index as town judge result
+    //    otherwise, return -1 as no one is town judge...
+    if (trustScore.indexOf(n-1))
+        return trustScore.indexOf(n-1);
+    else
+        return -1;            
     
     
-    dSize = Object.keys(distribution).length;
-    
-    let potentialJudge = '';
-    
-    
-    for (let i = 0; i < dSize; i++) {
-        if (distribution[Object.keys(distribution)[i]] === n-1) {
-            potentialJudge =  parseInt(Object.keys(distribution)[i]);
-        }
-    }
-    // we should find exactly one potential judge that has the same value of n-1 (the number of people trusting her)
-    //                                                       in this case, n = 4, so there should be 3 people trust her
-    
-    if (potentialJudge == '') return -1; // when no judge is found
-    
-    for (let i = 0; i < size; i++){
-        // if judge trusts anyone, she's not a judge (aka when judge num is in the first position in each trust set)
-        if (trust[i][0] == parseInt(potentialJudge)) return -1 ;
-    }
-    return potentialJudge;
 };
